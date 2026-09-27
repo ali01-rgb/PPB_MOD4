@@ -53,6 +53,30 @@ const GUNS = [
     description:
       'The other pump gun. Twin action bars, a simple safety on the tang, and a price that leaves money for ammunition.',
   },
+  {
+    name: 'MP5',
+    type: 'Submachine Gun',
+    caliber: '9mm',
+    price: 1200,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/H%26K_MP5A3.jpg/640px-H%26K_MP5A3.jpg',
+    description: 'Iconic roller-delayed blowback submachine gun known for exceptional accuracy and controllable recoil.',
+  },
+  {
+    name: 'M16A4',
+    type: 'Rifle',
+    caliber: '5.56mm',
+    price: 950,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/M16A4.jpg/640px-M16A4.jpg',
+    description: 'Standard issue battle rifle featuring high muzzle velocity, flat trajectory, and full-length handguard.',
+  },
+  {
+    name: 'Beretta 92FS',
+    type: 'Pistol',
+    caliber: '9mm',
+    price: 650,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/M9-pistolet.jpg/640px-M9-pistolet.jpg',
+    description: 'Classic open-slide combat pistol with double/single action operation and proven military reliability.',
+  }
 ]
 
 export default GUNS
