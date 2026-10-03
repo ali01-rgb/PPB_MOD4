@@ -1,22 +1,23 @@
 import { useState, useMemo } from 'react'
 import GUNS from '../data/guns.js'
 import GunCard from '../components/GunCard.jsx'
+import '../components/cart-anim.css'
 
 function Catalog() {
-  // State Keranjang Belanja
+  // State keranjang & checkout
   const [cart, setCart] = useState([])
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [isCheckoutModal, setIsCheckoutModal] = useState(false)
   const [buyerName, setBuyerName] = useState('')
   const [isSuccess, setIsSuccess] = useState(false)
 
-  // State Tugas 2 & 3: Pencarian, Filter Jenis, dan Toggle Sort
+  // State pencarian, filter jenis, dan sort
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedType, setSelectedType] = useState('All')
-  const [sortField, setSortField] = useState('name') // 'name' atau 'price'
-  const [sortDirection, setSortDirection] = useState('asc') // 'asc' atau 'desc'
+  const [sortField, setSortField] = useState('name') // 'name' | 'price'
+  const [sortDirection, setSortDirection] = useState('asc') // 'asc' | 'desc'
 
-  // Tambah item ke keranjang dengan kuantitas (Butir 4)
+  // Butir 4: tambah item (kuantitas bertambah jika sudah ada)
   const addToCart = (gun) => {
     setCart((prev) => {
       const existing = prev.find((item) => item.name === gun.name)
@@ -29,7 +30,6 @@ function Catalog() {
     })
   }
 
-  // Kontrol Kuantitas Tambah (+)
   const increaseQuantity = (name) => {
     setCart((prev) =>
       prev.map((item) =>
@@ -38,7 +38,6 @@ function Catalog() {
     )
   }
 
-  // Kontrol Kuantitas Kurang (-)
   const decreaseQuantity = (name) => {
     setCart((prev) =>
       prev
@@ -49,16 +48,14 @@ function Catalog() {
     )
   }
 
-  // Hapus item dari keranjang
   const removeFromCart = (name) => {
     setCart((prev) => prev.filter((item) => item.name !== name))
   }
 
-  // Hitung total kuantitas barang (badge header) dan total nominal harga
   const totalItemCount = cart.reduce((sum, item) => sum + item.quantity, 0)
   const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
-  // Toggle Sorting (Butir 3)
+  // Butir 3: toggle sort (klik lagi = balik arah)
   const handleSortToggle = (field) => {
     if (sortField === field) {
       setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'))
@@ -68,36 +65,28 @@ function Catalog() {
     }
   }
 
-  // Ambil daftar kategori produk dinamis
+  // Daftar kategori dibuat otomatis dari data
   const categories = useMemo(() => {
     const types = new Set(GUNS.map((g) => g.type))
     return ['All', ...Array.from(types)]
   }, [])
 
-  // Pengolahan Filter & Sort Katalog (Butir 2 & 3)
+  // Butir 2 & 3: filter + sort
   const filteredGuns = useMemo(() => {
     let result = [...GUNS]
 
-    // Filter Pencarian Nama
-    if (searchQuery.trim() !== '') {
-      result = result.filter((g) =>
-        g.name.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+    const q = searchQuery.trim().toLowerCase()
+    if (q) {
+      result = result.filter((g) => g.name.toLowerCase().includes(q))
     }
 
-    // Filter Jenis Produk
     if (selectedType !== 'All') {
       result = result.filter((g) => g.type === selectedType)
     }
 
-    // Pengurutan (Sort)
     result.sort((a, b) => {
-      let cmp = 0
-      if (sortField === 'name') {
-        cmp = a.name.localeCompare(b.name)
-      } else if (sortField === 'price') {
-        cmp = a.price - b.price
-      }
+      const cmp =
+        sortField === 'name' ? a.name.localeCompare(b.name) : a.price - b.price
       return sortDirection === 'asc' ? cmp : -cmp
     })
 
@@ -117,20 +106,31 @@ function Catalog() {
     setIsSuccess(false)
   }
 
+  const sortBtnStyle = (active) => ({
+    flex: 1,
+    padding: '8px',
+    backgroundColor: active ? '#1e2a35' : '#fff',
+    color: active ? '#fff' : '#1e2a35',
+    border: '1px solid #1e2a35',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '12px',
+    fontWeight: '600',
+  })
+
   return (
     <>
       <section className="masthead">
         <h1 className="display">Hardware, by the spec sheet.</h1>
         <p className="lede">
-          A small armory of pistols, rifles, and shotguns. Every piece listed with its
-          type, caliber, and price — nothing else.
+          A small armory of pistols, rifles, shotguns, and submachine guns. Every piece
+          listed with its type, caliber, and price — nothing else.
         </p>
       </section>
 
-      {/* Toolbar Kontrol: Pencarian, Filter Kategori, dan Tombol Toggle Sort */}
+      {/* Toolbar: pencarian, filter jenis, toggle sort */}
       <section style={{ backgroundColor: '#f0f3f5', padding: '16px', borderRadius: '8px', marginBottom: '24px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', alignItems: 'center' }}>
-          {/* Kolom Pencarian Nama (Butir 2) */}
           <div>
             <label style={{ fontSize: '13px', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>Search Product:</label>
             <input
@@ -142,7 +142,6 @@ function Catalog() {
             />
           </div>
 
-          {/* Filter Jenis Produk (Butir 2) */}
           <div>
             <label style={{ fontSize: '13px', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>Filter Type:</label>
             <select
@@ -156,43 +155,13 @@ function Catalog() {
             </select>
           </div>
 
-          {/* Tombol Toggle Sort by Name & Price (Butir 3) */}
           <div>
             <label style={{ fontSize: '13px', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>Toggle Sort:</label>
             <div style={{ display: 'flex', gap: '8px' }}>
-              <button
-                type="button"
-                onClick={() => handleSortToggle('name')}
-                style={{
-                  flex: 1,
-                  padding: '8px',
-                  backgroundColor: sortField === 'name' ? '#1e2a35' : '#fff',
-                  color: sortField === 'name' ? '#fff' : '#1e2a35',
-                  border: '1px solid #1e2a35',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontSize: '12px',
-                  fontWeight: '600'
-                }}
-              >
+              <button type="button" onClick={() => handleSortToggle('name')} style={sortBtnStyle(sortField === 'name')}>
                 Name {sortField === 'name' ? (sortDirection === 'asc' ? '↑ (A-Z)' : '↓ (Z-A)') : ''}
               </button>
-
-              <button
-                type="button"
-                onClick={() => handleSortToggle('price')}
-                style={{
-                  flex: 1,
-                  padding: '8px',
-                  backgroundColor: sortField === 'price' ? '#1e2a35' : '#fff',
-                  color: sortField === 'price' ? '#fff' : '#1e2a35',
-                  border: '1px solid #1e2a35',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontSize: '12px',
-                  fontWeight: '600'
-                }}
-              >
+              <button type="button" onClick={() => handleSortToggle('price')} style={sortBtnStyle(sortField === 'price')}>
                 Price {sortField === 'price' ? (sortDirection === 'asc' ? '↑ Low' : '↓ High') : ''}
               </button>
             </div>
@@ -200,13 +169,12 @@ function Catalog() {
         </div>
       </section>
 
-      {/* Header Stok & Badge Keranjang Belanja */}
+      {/* Header stok + badge keranjang */}
       <section>
         <div className="list-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
           <h2>Current stock <span className="count">({filteredGuns.length} pieces shown)</span></h2>
-          
-          {/* Butir 4: Badge Jumlah Item di Header */}
-          <button 
+
+          <button
             onClick={() => setIsCartOpen(true)}
             style={{
               padding: '8px 16px',
@@ -218,52 +186,52 @@ function Catalog() {
               fontWeight: 'bold',
               display: 'flex',
               alignItems: 'center',
-              gap: '8px'
+              gap: '8px',
             }}
           >
-            🛒 Cart 
-            <span style={{
-              backgroundColor: '#a67c2e',
-              color: '#fff',
-              borderRadius: '10px',
-              padding: '2px 8px',
-              fontSize: '12px'
-            }}>
+            🛒 Cart
+            {/* key berubah tiap jumlah berubah, jadi animasi "bump" diputar ulang */}
+            <span
+              key={totalItemCount}
+              className={`cart-badge${totalItemCount > 0 ? ' cart-badge-bump' : ''}`}
+            >
               {totalItemCount}
             </span>
           </button>
         </div>
 
         {filteredGuns.length === 0 ? (
-          <p style={{ textAlign: 'center', padding: '30px', color: '#666' }}>No products match your search or filter.</p>
+          <p style={{ textAlign: 'center', padding: '30px', color: '#666' }}>
+            No products match your search or filter.
+          </p>
         ) : (
           <ul className="stock">
             {filteredGuns.map((gun) => (
-              <GunCard 
-                key={gun.name} 
-                gun={gun} 
-                onAddToCart={addToCart} 
-              />
+              <GunCard key={gun.name} gun={gun} onAddToCart={addToCart} />
             ))}
           </ul>
         )}
       </section>
 
-      {/* Modal Keranjang Belanja: Kontrol Kuantitas & Total Harga (Butir 4) */}
+      {/* Modal keranjang */}
       {isCartOpen && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.6)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 1000, padding: '16px'
-        }}>
+        <div
+          onClick={(e) => e.target === e.currentTarget && setIsCartOpen(false)}
+          style={{
+            position: 'fixed',
+            top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.6)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            zIndex: 1000, padding: '16px',
+          }}
+        >
           <div style={{
             background: '#fff', padding: '24px', borderRadius: '8px',
-            maxWidth: '460px', width: '100%', color: '#18222c', maxHeight: '85vh', display: 'flex', flexDirection: 'column'
+            maxWidth: '460px', width: '100%', color: '#18222c', maxHeight: '85vh',
+            display: 'flex', flexDirection: 'column',
           }}>
             <h3 style={{ marginTop: 0 }}>Shopping Cart</h3>
-            
+
             {cart.length === 0 ? (
               <p style={{ color: '#666', margin: '24px 0', textAlign: 'center' }}>Keranjang masih kosong.</p>
             ) : (
@@ -271,7 +239,7 @@ function Catalog() {
                 {cart.map((item) => (
                   <div key={item.name} style={{
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    padding: '8px 0', borderBottom: '1px solid #eee'
+                    padding: '8px 0', borderBottom: '1px solid #eee',
                   }}>
                     <div style={{ flex: 1 }}>
                       <strong>{item.name}</strong>
@@ -281,16 +249,15 @@ function Catalog() {
                       </div>
                     </div>
 
-                    {/* Kontrol Kuantitas (+ dan -) */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginRight: '12px' }}>
-                      <button 
+                      <button
                         onClick={() => decreaseQuantity(item.name)}
                         style={{ width: '28px', height: '28px', background: '#e0e0e0', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
                       >
                         -
                       </button>
                       <span style={{ fontWeight: 'bold', minWidth: '18px', textAlign: 'center' }}>{item.quantity}</span>
-                      <button 
+                      <button
                         onClick={() => increaseQuantity(item.name)}
                         style={{ width: '28px', height: '28px', background: '#e0e0e0', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
                       >
@@ -298,7 +265,7 @@ function Catalog() {
                       </button>
                     </div>
 
-                    <button 
+                    <button
                       onClick={() => removeFromCart(item.name)}
                       style={{ background: '#ff4d4f', color: '#fff', border: 'none', borderRadius: '4px', padding: '4px 8px', cursor: 'pointer', fontSize: '12px' }}
                     >
@@ -321,14 +288,14 @@ function Catalog() {
             </div>
 
             <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '18px' }}>
-              <button 
+              <button
                 onClick={() => setIsCartOpen(false)}
                 style={{ padding: '8px 14px', background: '#ccc', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
               >
                 Close
               </button>
               {cart.length > 0 && (
-                <button 
+                <button
                   onClick={() => {
                     setIsCartOpen(false)
                     setIsCheckoutModal(true)
@@ -343,18 +310,18 @@ function Catalog() {
         </div>
       )}
 
-      {/* Modal Formulir Checkout */}
+      {/* Modal checkout */}
       {isCheckoutModal && (
         <div style={{
           position: 'fixed',
           top: 0, left: 0, right: 0, bottom: 0,
           backgroundColor: 'rgba(0,0,0,0.6)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 1001, padding: '16px'
+          zIndex: 1001, padding: '16px',
         }}>
           <div style={{
             background: '#fff', padding: '24px', borderRadius: '8px',
-            maxWidth: '420px', width: '100%', color: '#18222c'
+            maxWidth: '420px', width: '100%', color: '#18222c',
           }}>
             {!isSuccess ? (
               <form onSubmit={handleCheckoutSubmit}>
@@ -365,12 +332,12 @@ function Catalog() {
                 <p style={{ margin: '6px 0', fontSize: '14px' }}>
                   <strong>Total Pembayaran:</strong> ${totalPrice.toLocaleString()}
                 </p>
-                
+
                 <div style={{ margin: '14px 0' }}>
                   <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px' }}>Nama Lengkap Pembeli:</label>
-                  <input 
-                    type="text" 
-                    required 
+                  <input
+                    type="text"
+                    required
                     value={buyerName}
                     onChange={(e) => setBuyerName(e.target.value)}
                     placeholder="Masukkan nama Anda..."
@@ -379,15 +346,15 @@ function Catalog() {
                 </div>
 
                 <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '18px' }}>
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={() => setIsCheckoutModal(false)}
                     style={{ padding: '8px 14px', background: '#ccc', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                   >
                     Batal
                   </button>
-                  <button 
-                    type="submit" 
+                  <button
+                    type="submit"
                     style={{ padding: '8px 14px', background: '#1e2a35', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
                   >
                     Konfirmasi Pembayaran
@@ -400,7 +367,7 @@ function Catalog() {
                 <p style={{ fontSize: '15px' }}>
                   Terima kasih <strong>{buyerName}</strong>, pembayaran senilai <strong>${totalPrice.toLocaleString()}</strong> untuk <strong>{totalItemCount} item</strong> berhasil diverifikasi.
                 </p>
-                <button 
+                <button
                   onClick={resetAll}
                   style={{ marginTop: '12px', padding: '8px 20px', background: '#1e2a35', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                 >

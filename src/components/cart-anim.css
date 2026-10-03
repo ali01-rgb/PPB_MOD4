@@ -1,0 +1,84 @@
+/* ===== Tombol Add to Cart ===== */
+.add-btn {
+  width: 100%;
+  height: 36px;
+  background-color: #1e2a35;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: transform 0.12s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.add-btn:hover {
+  background-color: #2b3b4a;
+  box-shadow: 0 2px 6px rgba(30, 42, 53, 0.35);
+}
+
+/* Efek "ditekan" saat diklik */
+.add-btn:active {
+  transform: scale(0.95);
+  box-shadow: none;
+}
+
+.add-btn:focus-visible {
+  outline: 2px solid #a67c2e;
+  outline-offset: 2px;
+}
+
+/* Setelah diklik: berubah hijau + label "pop" */
+.add-btn.is-added {
+  background-color: #2e7d32;
+}
+
+.add-btn-label {
+  display: inline-block;
+  animation: add-pop 0.35s ease;
+}
+
+@keyframes add-pop {
+  0%   { transform: scale(0.7); opacity: 0.4; }
+  60%  { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+/* Varian lebih besar untuk tombol di pop-up */
+.add-btn--lg {
+  width: auto;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+/* ===== Badge jumlah item di header ===== */
+.cart-badge {
+  display: inline-block;
+  background-color: #a67c2e;
+  color: #fff;
+  border-radius: 10px;
+  padding: 2px 8px;
+  font-size: 12px;
+}
+
+.cart-badge-bump {
+  animation: badge-bump 0.4s ease;
+}
+
+@keyframes badge-bump {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.5); }
+  100% { transform: scale(1); }
+}
+
+/* Hormati pengaturan "reduce motion" */
+@media (prefers-reduced-motion: reduce) {
+  .add-btn,
+  .add-btn-label,
+  .cart-badge-bump {
+    animation: none;
+    transition: none;
+  }
+}
